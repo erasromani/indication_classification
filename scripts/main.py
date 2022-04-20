@@ -30,7 +30,7 @@ def main(args):
   random.seed(seed)
   torch.manual_seed(seed)
   torch.cuda.manual_seed(seed)
-  np.random.seed(seed)  
+  np.random.seed(seed)
 
   save_path = get_save_path(args.output_dir)  
   try:
