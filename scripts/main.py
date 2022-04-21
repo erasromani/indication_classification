@@ -69,6 +69,7 @@ if __name__ == "__main__":
   parser.add_argument('--logging_steps', default=5, type=int, help='logging interval for validation set metrics')
   parser.add_argument('--batch_size', type=int, help='batch_size')
   parser.add_argument('--seed', default=None, type=int, help='random seed')
+  parser.add_argument('--clip_grad_norm', default=None, type=int, help='gradient clipping value for gradient norm')
   parser.add_argument('--num_classes', default=5, type=int, help='number of classes in dataset')
   parser.add_argument('--handle_max_length', default="truncate", type=str, help='method of handling max length')
   parser.add_argument('--data_path', default='../data/dataset.pkl', type=str, help='path to dataset pickle file')
