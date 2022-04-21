@@ -60,7 +60,7 @@ def main(args):
 
 if __name__ == "__main__": 
   parser = argparse.ArgumentParser(description='train indication classifer')
-  parser.add_argument('--model', default='clinicalbiobert', type=str, help='model name')
+  parser.add_argument('--model', default='clinicallongformer', type=str, help='model name')
   parser.add_argument('--max_lr', required=True, type=float, help='max learning rate')
   parser.add_argument('--weight_decay', required=True, type=float, help='weight decay')
   parser.add_argument('--warmup_steps', default=None, type=int, help='warmup steps for learning rate scheduler')

@@ -46,13 +46,15 @@ def eval_loop(model, dataloader, device):
         "f1_score": f1_score(all_labels, all_preds, average='macro')
     }
 
-def train_step(optimizer, model, batch):
+def train_step(optimizer, model, batch, clip_grad_norm=None):
     """Run a single train step."""
     model.train()
     optimizer.zero_grad()
     outputs = model(**batch)
     loss = outputs["loss"]
     loss.backward()
+    if clip_grad_norm is not None:
+        torch.nn.utils.clip_grad_norm_(model.parameters(), clip_grad_norm)
     optimizer.step()
     return loss.item()
 
@@ -72,7 +74,19 @@ def lr_lambda(current_step: int, warmup_steps: int, total_steps: int, decay_type
         raise ValueError('invalid decay_type {} entered'.format(decay_type))
 
 
-def train_loop(train_dataloader, val_dataloader, model, optimizer, num_epochs, warmup_steps, device, save_path, logging_steps=5, checkpoint_metric='f1_score'):
+# TODO: Add gradient clipping
+def train_loop(
+    train_dataloader, 
+    val_dataloader, 
+    model, optimizer, 
+    num_epochs, 
+    warmup_steps, 
+    device, 
+    save_path, 
+    logging_steps=5, 
+    checkpoint_metric='f1_score',
+    clip_grad_norm=None
+    ):
 
   total_steps = num_epochs * len(train_dataloader)
   lr_scheduler = None if warmup_steps is None \
@@ -88,6 +102,7 @@ def train_loop(train_dataloader, val_dataloader, model, optimizer, num_epochs, w
           optimizer=optimizer,
           model=model,
           batch=batch,
+          clip_grad_norm=clip_grad_norm,
       )
       writer.add_scalar("learning_rate", optimizer.param_groups[0]['lr'], step)
       if lr_scheduler is not None:
