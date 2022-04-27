@@ -33,7 +33,7 @@ def main(args):
   except OSError as error:
       print(f"Directory {save_path} can not be created")
 
-  dataloaders = get_dataloaders(args.data_path, args.batch_size)
+  dataloaders = get_dataloaders(args.data_path, args.batch_size, exclude_classes=args.exclude_classes)
   model = resolve_model(args.model, args.num_classes)
   optimizer = Adam(model.parameters(), lr=args.max_lr, weight_decay=args.weight_decay)
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -73,6 +73,7 @@ if __name__ == "__main__":
   parser.add_argument('--num_classes', default=5, type=int, help='number of classes in dataset')
   parser.add_argument('--handle_max_length', default="truncate", type=str, help='method of handling max length')
   parser.add_argument('--data_path', default='../data/dataset.pkl', type=str, help='path to dataset pickle file')
+  parser.add_argument('--exclude_classes', default=['unknown'], nargs='+', type=str, help='class names to exclude')
 
   args = parser.parse_args()
 

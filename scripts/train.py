@@ -22,7 +22,7 @@ def eval_loop(model, dataloader, device):
     all_preds = []
 
     for batch in dataloader:
-        batch = {key: value.to(device) for key, value in batch.items()}        
+        batch = {key: value.to(device) for key, value in batch.items()}
         outputs = model(**batch)
         loss = outputs["loss"]
 

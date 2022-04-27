@@ -22,6 +22,7 @@ class ClinicalBioBERT(nn.Module):
     x = self.feature_extractor(input_ids=kwargs['input_ids'], attention_mask=kwargs['attention_mask'])
     logits = self.classifier(x['pooler_output'])
     label = kwargs['labels']
+    print(logits.shape, label.shape)
     loss = self.loss_func(logits, label)
     return {
       "loss": loss,
