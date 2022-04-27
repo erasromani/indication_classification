@@ -4,18 +4,12 @@ from train import train_loop
 import numpy as np
 import torch
 import random
-from model import ClinicalBERT
+from models import resolve_model
 from torch.optim import Adam
 import os
 import json
-import datetime
+from utils import get_save_path
 
-def get_save_path(output_dir):
-  timestamp = datetime.datetime.now()
-  date = timestamp.strftime("%Y%m%d")
-  time = timestamp.strftime("%H%M%S")
-  save_path = f'{output_dir}/{date}/{time}'
-  return save_path
 
 def main(args):
 
@@ -39,8 +33,8 @@ def main(args):
   except OSError as error:
       print(f"Directory {save_path} can not be created")
 
-  dataloaders = get_dataloaders(args.data_path, args.batch_size)
-  model = ClinicalBERT(args.num_classes)
+  dataloaders = get_dataloaders(args.data_path, args.batch_size, exclude_classes=args.exclude_classes)
+  model = resolve_model(args.model, args.num_classes)
   optimizer = Adam(model.parameters(), lr=args.max_lr, weight_decay=args.weight_decay)
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   print(f'running on device {device}')
@@ -66,6 +60,7 @@ def main(args):
 
 if __name__ == "__main__": 
   parser = argparse.ArgumentParser(description='train indication classifer')
+  parser.add_argument('--model', default='clinicallongformer', type=str, help='model name')
   parser.add_argument('--max_lr', required=True, type=float, help='max learning rate')
   parser.add_argument('--weight_decay', required=True, type=float, help='weight decay')
   parser.add_argument('--warmup_steps', default=None, type=int, help='warmup steps for learning rate scheduler')
@@ -74,8 +69,11 @@ if __name__ == "__main__":
   parser.add_argument('--logging_steps', default=5, type=int, help='logging interval for validation set metrics')
   parser.add_argument('--batch_size', type=int, help='batch_size')
   parser.add_argument('--seed', default=None, type=int, help='random seed')
+  parser.add_argument('--clip_grad_norm', default=None, type=int, help='gradient clipping value for gradient norm')
   parser.add_argument('--num_classes', default=5, type=int, help='number of classes in dataset')
+  parser.add_argument('--handle_max_length', default="truncate", type=str, help='method of handling max length')
   parser.add_argument('--data_path', default='../data/dataset.pkl', type=str, help='path to dataset pickle file')
+  parser.add_argument('--exclude_classes', default=['unknown'], nargs='+', type=str, help='class names to exclude')
 
   args = parser.parse_args()
 
