@@ -26,3 +26,4 @@ def get_save_path(output_dir):
   time = timestamp.strftime("%H%M%S")
   save_path = f'{output_dir}/{date}/{time}'
   return save_path
+

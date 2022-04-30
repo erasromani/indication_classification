@@ -1,10 +1,12 @@
-from models.baseline import ClinicalBioBERT, ClinicalLongformer
+from models.baseline import ClinicalBioBERT, ClinicalLongformer, ClinicalSlidingWindow
 
 
 def resolve_model(name, *args, **kwargs):
   if name == 'clinicalbiobert':
-    return ClinicalBioBERT(*args, **kwargs)
+    return ClinicalBioBERT(*args)
   elif name == 'clinicallongformer':
-    return ClinicalLongformer(*args, **kwargs)
+    return ClinicalLongformer(*args)
+  elif name == "clinicalslidingwindow":
+      return ClinicalSlidingWindow(*args, **kwargs)
   else:
     ValueError(f"invalid model name {name} entered")
