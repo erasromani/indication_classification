@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument('--seed', default=None, type=int, help='random seed')
     parser.add_argument('--max_lr', default=2e-5, type=float, help='max learning rate')
     parser.add_argument('--weight_decay', default=0.01, type=float, help='weight decay')
-    parser.add_argument('--per_device_batch_size', default=8, type=int, help='per device batch size')
+    parser.add_argument('--per_device_batch_size', default=7, type=int, help='per device batch size')
     parser.add_argument('--warmup_steps', default=1000, type=int, help='warmup steps for learning rate scheduler')
     parser.add_argument('--logging_steps', default=100, type=int, help='logging steps')
     parser.add_argument('--eval_steps', default=2000, type=int, help='evaluation steps')

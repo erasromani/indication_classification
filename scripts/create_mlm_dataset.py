@@ -46,34 +46,46 @@ def main(args):
         config = json.dumps(config, indent=4, sort_keys=True)
         f.write(config)
 
+    if args.exclude_acn_path is None:
+        exclude_acn = []
+    else:
+        exclude_acn = np.loadtxt(args.exclude_acn_path, dtype=str, skiprows=0)
 
-    all_data = []
+    # TODO: log Acc in train and test set
+    all_texts = []
+    all_acns = []
     for data_file in args.data_files:
         data = load_data(data_file)
-        if Path(data_file).suffix == '.pkl':
-            data = list(data['RawReport'].values)
-        else:
-            data = list(data['Report'].values)
-            all_data.extend(data)
+        data = data.drop_duplicates(subset='Acc', keep='first')
+        column = list({'RawReport', 'Report'}.intersection(data.columns))
+        assert len(column) == 1, 'invalid number of matching columns'
+        column = column[0]
+        acns = list(data['Acc'].values)
+        texts = list(data[column].values)
+        all_texts.extend(texts)
+        all_acns.extend(acns)
+    assert len(all_acns) == len(all_texts), "acn list and report list have mismatch lengths"
 
     text_data = []
-    for i, data in enumerate(all_data):
-        if isinstance(data, str):
+    for acn, data in zip(all_acns, all_texts):
+        if isinstance(data, str) and str(acn) not in exclude_acn:
             text_data.append(data)
-    del all_data
+    del all_texts
+    del all_acns
 
     df = pd.DataFrame({'text': text_data})
-
     dataset = Dataset.from_pandas(df)
-    tokenizer = AutoTokenizer.from_pretrained("yikuan8/Clinical-Longformer")
 
+    tokenizer = AutoTokenizer.from_pretrained("yikuan8/Clinical-Longformer")
     dataset = dataset.map(partial(tokenize_and_chunk, tokenizer=tokenizer), batched=True, remove_columns=["text"])
     dataset = dataset.train_test_split(test_size=args.eval_size)
     dataset.save_to_disk(args.output_dir)
-    
+
+
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(description='construct tokenized dataset for masked language modeling with clinical longformer')
-    parser.add_argument('--output_dir', 
+    parser.add_argument('--output_dir',
                         required=True,
                         type=str,
                         help='output directory for mlm dataset')
@@ -87,6 +99,10 @@ if __name__ == "__main__":
                         ],
                         type=str,
                         help='paths to radiology all radiology reports')
+    parser.add_argument('--exclude_acn_path',
+                        default=None,
+                        type=str,
+                        help='path to text file containing list of accession numbers to exclude; first row will be skipped upon loading')
     parser.add_argument('--eval_size',
                         default=5000,
                         type=int,

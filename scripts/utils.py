@@ -16,12 +16,13 @@ def load_data(path):
   path = Path(path)
   if path.suffix == ".xlsx":
     data = pd.read_excel(path, engine='openpyxl', index_col=0)
-    data = data.drop_duplicates(subset='Acc', keep='first')
     return data
   elif path.suffix == ".pkl":
     with open(path, 'rb') as f:
       data = pickle.load(f)
     return data
+  else:
+    raise NotImplementedError(f"data loading for {path.suffix} file not implemented")
 
 def save_weights(model, optimizer, filename, **kwargs):
     """
