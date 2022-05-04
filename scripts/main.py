@@ -50,14 +50,14 @@ def main(args):
     config = json.dumps(config, indent=4, sort_keys=True)
     f.write(config)
   
-  train_loop(dataloaders["train"], 
+  train_loop(dataloaders["train"],
              dataloaders["val"],
-             model, 
-             optimizer, 
-             args.num_epochs, 
+             model,
+             optimizer,
+             args.num_epochs,
              args.warmup_steps,
-             device, 
-             save_path, 
+             device,
+             save_path,
              logging_steps=args.logging_steps,
              clip_grad_norm=args.clip_grad_norm,
              grad_accum_steps=args.grad_accum_steps)
@@ -65,7 +65,7 @@ def main(args):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='train indication classifer')
-  parser.add_argument('--model', default='clinicalslidingwindow', type=str, help='model name')
+  parser.add_argument('--model', default='clinicallongformer', type=str, help='model name')
   parser.add_argument('--max_lr', required=True, type=float, help='max learning rate')
   parser.add_argument('--weight_decay', required=True, type=float, help='weight decay')
   parser.add_argument('--warmup_steps', default=None, type=int, help='warmup steps for learning rate scheduler')
@@ -77,7 +77,7 @@ if __name__ == "__main__":
   parser.add_argument('--c', default=None, type=float, help='weighting parameter for mean/max clinicalslidingwindow reduction')
   parser.add_argument('--clip_grad_norm', default=1.0, type=float, help='gradient clipping value for gradient norm')
   parser.add_argument('--num_classes', default=5, type=int, help='number of classes in dataset')
-  parser.add_argument('--grad_accum_steps', default=4, type=int, help='number of steps to perform gradient accumation for')
+  parser.add_argument('--grad_accum_steps', default=2, type=int, help='number of steps to perform gradient accumation for')
   parser.add_argument('--reduction', default="attention", type=str, help='aggregation method for sliding window')
   parser.add_argument('--data_path', default='../data/dataset.pkl', type=str, help='path to dataset pickle file')
   parser.add_argument('--exclude_classes', default=['unknown'], nargs='+', type=str, help='class names to exclude')

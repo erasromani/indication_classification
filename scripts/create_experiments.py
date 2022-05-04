@@ -9,8 +9,8 @@ import itertools
 lrs = [1e-4, 1e-5, 2e-5, 5e-5]
 wds = [1e-5, 1e-4, 1e-3, 1e-2]
 wms = [25, 50, 100, 150]
-nes = [60, 80, 100]
-bs = 4
+nes = [30, 40, 50]
+bs = 8
 
 
 f = open('run.sh', 'w')

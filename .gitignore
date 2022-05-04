@@ -3,6 +3,8 @@ logs/
 results/
 archive/
 final_results/
+.env
+notebooks/train/models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
