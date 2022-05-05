@@ -78,7 +78,10 @@ def main(args):
         eval_dataset=dataset['test']
     )
 
-    trainer.train()
+    if args.checkpoint_path is None:
+        trainer.train()
+    else:
+        trainer.train(args.checkpoint_path)
     trainer.save_model(os.path.join(save_path, "model_last_epoch.pt"))
 
 
@@ -93,6 +96,7 @@ if __name__ == "__main__":
     parser.add_argument('--eval_steps', default=2000, type=int, help='evaluation steps')
     parser.add_argument('--save_steps', default=2000, type=int, help='save steps')
     parser.add_argument('--num_epochs', default=2, type=int, help='total number of epochs')
+    parser.add_argument('--checkpoint_path', default=None, type=str, help='path to checkpoint directory from which to continue training from')
     parser.add_argument('--data_dir',
                         default="/gpfs/data/geraslab/ekr6072/projects/study_indication/data/mlm_dataset",
                         type=str,
