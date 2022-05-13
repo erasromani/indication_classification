@@ -9,4 +9,4 @@ def resolve_model(name, *args, **kwargs):
   elif name == "clinicalslidingwindow":
       return ClinicalSlidingWindow(*args, **kwargs)
   else:
-    ValueError(f"invalid model name {name} entered")
+    raise ValueError(f"invalid model name {name} entered")

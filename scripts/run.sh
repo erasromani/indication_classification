@@ -1,4 +1,4 @@
-indication_setup 0.0001 1e-05 25 30 8
+# indication_setup 0.0001 1e-05 25 30 8
 indication_setup 0.0001 1e-05 25 40 8
 indication_setup 0.0001 1e-05 25 50 8
 indication_setup 0.0001 1e-05 50 30 8

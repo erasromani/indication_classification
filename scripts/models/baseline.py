@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import collections
 
 from torch import nn
 from transformers import AutoModel
@@ -79,15 +80,25 @@ class ClinicalSlidingWindow(ClinicalBioBERT):
 
 
 class ClinicalLongformer(nn.Module):
-  def __init__(self, num_classes):
+  def __init__(self, num_classes, pretrain_path=None):
     super(ClinicalLongformer, self).__init__()
     self.feature_extractor = resolve_feature_extractor("clinicallongformer")
     self.classifier = nn.Linear(self.feature_extractor.get_input_embeddings().embedding_dim, num_classes)
     self.loss_func = nn.CrossEntropyLoss()
-  
-  def forward(self, **kwargs):
+
+    if pretrain_path is not None:
+      checkpoint = torch.load(pretrain_path)
+      new_state_dict = collections.OrderedDict()
+      for k, v in checkpoint.items():
+        name = k.replace('longformer.', '')
+        new_state_dict[name] = v
+      self.feature_extractor.load_state_dict(new_state_dict, strict=False)
+
+  def forward(self, inference=False, **kwargs):
     x = self.feature_extractor(input_ids=kwargs['input_ids'], attention_mask=kwargs['attention_mask'])
     logits = self.classifier(x['pooler_output'])
+    if inference:
+      return logits
     labels = kwargs['labels']
     loss = self.loss_func(logits, labels)
     return {

@@ -9,7 +9,7 @@ from torch.optim import Adam
 import os
 import json
 from utils import get_save_path
-
+from train import eval_loop
 
 def main(args):
 
@@ -38,6 +38,9 @@ def main(args):
 
   dataloaders = get_dataloaders(args.data_path, args.batch_size, args.model, exclude_classes=args.exclude_classes)
   model = resolve_model(args.model, args.num_classes, reduction=args.reduction, c=args.c)
+  if args.pretrain_path is not None:
+    checkpoint = torch.load(args.pretrain_path)
+    model.load_state_dict(checkpoint)
   optimizer = Adam(model.parameters(), lr=args.max_lr, weight_decay=args.weight_decay)
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   print(f'running on device {device}')
@@ -49,18 +52,30 @@ def main(args):
   with open(os.path.join(save_path, "config.json"),"w") as f:
     config = json.dumps(config, indent=4, sort_keys=True)
     f.write(config)
-  
-  train_loop(dataloaders["train"],
-             dataloaders["val"],
-             model,
-             optimizer,
-             args.num_epochs,
-             args.warmup_steps,
-             device,
-             save_path,
-             logging_steps=args.logging_steps,
-             clip_grad_norm=args.clip_grad_norm,
-             grad_accum_steps=args.grad_accum_steps)
+
+  if args.mode == 'train':  
+    train_loop(dataloaders["train"],
+              dataloaders["val"],
+              model,
+              optimizer,
+              args.num_epochs,
+              args.warmup_steps,
+              device,
+              save_path,
+              logging_steps=args.logging_steps,
+              clip_grad_norm=args.clip_grad_norm,
+              grad_accum_steps=args.grad_accum_steps)
+  elif args.mode == 'eval':
+    val_results = eval_loop(model,
+                            dataloaders["test"],
+                            device)
+    if args.verbose:
+      print("test acc: {:.3f}, test f1: {:.3f}".format(
+          val_results["accuracy"],
+          val_results["f1_score"])
+      )
+  else:
+    raise ValueError(f"invalid mode {args.mode}")
 
 
 if __name__ == "__main__":
@@ -81,6 +96,8 @@ if __name__ == "__main__":
   parser.add_argument('--reduction', default="attention", type=str, help='aggregation method for sliding window')
   parser.add_argument('--data_path', default='../data/dataset.pkl', type=str, help='path to dataset pickle file')
   parser.add_argument('--exclude_classes', default=['unknown'], nargs='+', type=str, help='class names to exclude')
+  parser.add_argument('--pretrain_path', default=None, type=str, help='path to model pretrained weights')
+  parser.add_argument('--mode', default='train', type=str, choices=['train', 'eval'])
 
   args = parser.parse_args()
 
